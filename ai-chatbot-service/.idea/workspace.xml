@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="37b20892-13a7-465a-b8d4-9a31e4641dd7" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/../AI-Chatbot-Ingesion-Resource/Financials-Master/Default.docx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../README.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/jarRepositories.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/ai/kt/chatbot/ChatbotApplication.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/ai/kt/chatbot/config/AiConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/ai/kt/chatbot/controller/ChatController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/ai/kt/chatbot/service/ChatService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/application.properties" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/test/java/com/ai/kt/chatbot/service/ChatServiceTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/application.properties" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/ai/kt/chatbot/ChatbotApplication.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/ai/kt/chatbot/config/AiConfig.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/ai/kt/chatbot/controller/ChatController.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ai-chatbot-ui/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ai-chatbot-ui/package-lock.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ai-chatbot-ui/package.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ai-chatbot-ui/public/index.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ai-chatbot-ui/public/page-1.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ai-chatbot-ui/public/page-2.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ai-chatbot-ui/public/page-3.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ai-chatbot-ui/public/page-4.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ai-chatbot-ui/public/page-5.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ai-chatbot-ui/src/App.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ai-chatbot-ui/src/App.test.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ai-chatbot-ui/src/components/ChatView.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ai-chatbot-ui/src/components/CreateMasterModal.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ai-chatbot-ui/src/components/Header.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ai-chatbot-ui/src/components/Sidebar.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ai-chatbot-ui/src/components/TrainingView.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ai-chatbot-ui/src/index.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ai-chatbot-ui/src/services/api.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ai-chatbot-ui/src/styles/App.css" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 5
+}</component>
+  <component name="ProjectId" id="37plUwBtkRQ3y6pEJFYHT3kmGgf" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.ChatbotApplication.executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "master",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "D:/Users/Muhammad.Waqar/Desktop/Personal-Projects/ai-kt-assistant/ai-chatbot-service"
+  }
+}]]></component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="37b20892-13a7-465a-b8d4-9a31e4641dd7" name="Changes" comment="" />
+      <created>1767607917751</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1767607917751</updated>
+    </task>
+    <servers />
+  </component>
+</project>
