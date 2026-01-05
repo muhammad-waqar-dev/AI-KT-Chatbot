@@ -1,5 +1,6 @@
 package com.ai.kt.chatbot.controller;
 
+import com.ai.kt.chatbot.model.Master;
 import com.ai.kt.chatbot.service.ChatService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -15,14 +16,14 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "http://localhost:3000", allowedHeaders = "*", methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.OPTIONS})
 public class ChatController {
 
     private final ChatService chatService;
 
     @GetMapping("/masters")
-    public ResponseEntity<List<String>> getMasters() {
-        return ResponseEntity.ok(chatService.getMasters());
+    public ResponseEntity<List<Master>> getMasters() {
+        return ResponseEntity.ok(chatService.getMastersObjects());
     }
 
     @DeleteMapping("/masters/{name}")
@@ -31,11 +32,22 @@ public class ChatController {
         return ResponseEntity.ok(Map.of("message", "Master deleted successfully"));
     }
 
+    @PutMapping("/masters/{oldName}")
+    public ResponseEntity<Map<String, String>> updateMaster(
+            @PathVariable String oldName,
+            @RequestBody Map<String, Object> request) {
+        String newName = (String) request.get("name");
+        Boolean isActive = (Boolean) request.get("isActive");
+        
+        chatService.updateMaster(oldName, newName, isActive);
+        return ResponseEntity.ok(Map.of("message", "Master updated successfully"));
+    }
+
     @PostMapping(value = "/chat", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter chat(@RequestBody Map<String, String> request) {
         SseEmitter emitter = new SseEmitter(0L);
         String message = request.get("message");
-        String masterName = request.getOrDefault("masterName", "Financials Master");
+        String masterName = request.getOrDefault("masterName", "Todo App");
 
         chatService.chat(message, masterName)
                 .onNext(token -> {
@@ -53,6 +65,16 @@ public class ChatController {
                 .start();
 
         return emitter;
+    }
+
+    @PostMapping("/masters")
+    public ResponseEntity<Map<String, String>> createMaster(@RequestBody Map<String, String> request) {
+        String name = request.get("name");
+        if (name == null || name.isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Master name is required"));
+        }
+        chatService.addMaster(name);
+        return ResponseEntity.ok(Map.of("message", "Master created successfully"));
     }
 
     @PostMapping("/ingest")

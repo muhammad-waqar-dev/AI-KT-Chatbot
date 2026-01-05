@@ -1,5 +1,7 @@
 package com.ai.kt.chatbot.service;
 
+import com.ai.kt.chatbot.model.Master;
+import com.ai.kt.chatbot.repository.MasterRepository;
 import dev.langchain4j.data.document.Document;
 import dev.langchain4j.data.document.DocumentParser;
 import dev.langchain4j.data.document.DocumentSplitter;
@@ -33,6 +35,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -42,6 +45,7 @@ public class ChatService {
     private final EmbeddingModel embeddingModel;
     private final EmbeddingStore<TextSegment> embeddingStore;
     private final ChatMemory chatMemory;
+    private final MasterRepository masterRepository;
 
     @Value("${chatbot.system-message-template:You are a Senior %s Expert. Your job is to help developers understand the project using ONLY the provided context. If the answer is not in the context, say: 'I don't have specific project knowledge on this yet.' Be concise, professional, and use formatting like bold text and headings.}")
     private String systemMessageTemplate;
@@ -49,47 +53,16 @@ public class ChatService {
     @Value("${chatbot.persistence.embedding-store.path:embeddings.json}")
     private String embeddingStorePath;
 
-    @Value("${chatbot.persistence.masters.path:masters.txt}")
-    private String mastersPath;
-
     @Value("${chatbot.rag.max-results:3}")
     private int maxResults;
 
     @Value("${chatbot.rag.min-score:0.6}")
     private double minScore;
 
-    // Store master names in a thread-safe way
-    private final Set<String> masters = Collections.synchronizedSet(new HashSet<>());
-
     @PostConstruct
     public void init() {
-        loadMasters();
-        if (masters.isEmpty()) {
-            masters.add("Financials Master");
-            saveMasters();
-        }
-    }
-
-    private void loadMasters() {
-        File file = new File(mastersPath);
-        if (file.exists()) {
-            try {
-                String content = Files.readString(file.toPath(), StandardCharsets.UTF_8);
-                if (!content.isBlank()) {
-                    masters.addAll(Arrays.asList(content.split(",")));
-                }
-            } catch (IOException e) {
-                System.err.println("Failed to load masters: " + e.getMessage());
-            }
-        }
-    }
-
-    private void saveMasters() {
-        try {
-            String content = String.join(",", masters);
-            Files.writeString(new File(mastersPath).toPath(), content, StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            System.err.println("Failed to save masters: " + e.getMessage());
+        if (masterRepository.findAllByIsDeletedFalse().isEmpty()) {
+            addMaster("Todo App");
         }
     }
 
@@ -104,21 +77,46 @@ public class ChatService {
     }
 
     public List<String> getMasters() {
-        return new ArrayList<>(masters);
+        return masterRepository.findAllByIsDeletedFalse().stream()
+                .filter(Master::isActive)
+                .map(Master::getMasterName)
+                .collect(Collectors.toList());
+    }
+
+    public List<Master> getMastersObjects() {
+        return masterRepository.findAllByIsDeletedFalse();
     }
 
     public void addMaster(String name) {
-        if (masters.add(name)) {
-            saveMasters();
+        if (masterRepository.findByMasterName(name).isEmpty()) {
+            Master master = Master.builder()
+                    .masterName(name)
+                    .isActive(true)
+                    .isDeleted(false)
+                    .build();
+            masterRepository.save(master);
         }
     }
 
     public void deleteMaster(String masterName) {
-        if (masters.remove(masterName)) {
-            saveMasters();
-            // Note: In-memory store cleanup is complex. For now, we just remove from masters list.
-            System.out.println("Master [" + masterName + "] removed from service.");
-        }
+        masterRepository.findByMasterName(masterName).ifPresent(master -> {
+            master.setDeleted(true);
+            masterRepository.save(master);
+            System.out.println("Master [" + masterName + "] marked as deleted in DB.");
+        });
+    }
+
+    public void updateMaster(String oldName, String newName, Boolean isActive) {
+        masterRepository.findByMasterName(oldName).ifPresent(master -> {
+            if (newName != null && !newName.isBlank()) {
+                master.setMasterName(newName);
+            }
+            if (isActive != null) {
+                master.setActive(isActive);
+            }
+            masterRepository.save(master);
+            System.out.println("Master [" + oldName + "] updated in DB.");
+        });
     }
 
     public TokenStream chat(String message, String masterName) {

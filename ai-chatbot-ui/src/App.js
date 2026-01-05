@@ -21,15 +21,23 @@ function App() {
   const [openMenuId, setOpenMenuId] = useState(null);
   
   const [newMasterName, setNewMasterName] = useState('');
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editingMasterName, setEditMasterName] = useState('');
+  const [editMasterStatus, setEditMasterStatus] = useState(true);
+
   const [ingestText, setIngestText] = useState('');
   const [ingestFile, setIngestFile] = useState(null);
   const [isIngesting, setIsIngesting] = useState(false);
   const [ingestStatus, setIngestStatus] = useState(null);
 
   const messagesEndRef = useRef(null);
+  const hasFetched = useRef(false);
 
   useEffect(() => {
-    fetchMasters();
+    if (!hasFetched.current) {
+      fetchMasters();
+      hasFetched.current = true;
+    }
     const handleClickOutside = () => setOpenMenuId(null);
     document.addEventListener('click', handleClickOutside);
     return () => document.removeEventListener('click', handleClickOutside);
@@ -44,7 +52,11 @@ function App() {
       const res = await api.getMasters();
       setMasters(res.data);
       if (res.data.length > 0 && !selectedMaster) {
-        setSelectedMaster(res.data[0]);
+        // Filter active ones for selection
+        const active = res.data.filter(m => m.active);
+        if (active.length > 0) {
+          setSelectedMaster(active[0].masterName);
+        }
       }
     } catch (e) { console.error("Failed to fetch masters", e); }
   };
@@ -96,34 +108,59 @@ function App() {
     );
   };
 
+  const handleCreateMaster = async (e) => {
+    if (e) e.preventDefault();
+    if (!newMasterName.trim()) return;
+
+    setIsIngesting(true);
+    try {
+      if (isEditMode) {
+        await api.updateMaster(editingMasterName, { name: newMasterName, isActive: editMasterStatus });
+        setIngestStatus({ type: 'success', message: 'Master updated!' });
+      } else {
+        await api.createMaster(newMasterName);
+        setIngestStatus({ type: 'success', message: 'Master created!' });
+      }
+      fetchMasters();
+      if (!isEditMode) setSelectedMaster(newMasterName);
+      setTimeout(() => {
+        setIsModalOpen(false);
+        setNewMasterName('');
+        setIsEditMode(false);
+        setEditMasterName('');
+        setIngestStatus(null);
+      }, 1500);
+    } catch (err) {
+      setIngestStatus({ type: 'error', message: err.response?.data?.error || `Failed to ${isEditMode ? 'update' : 'create'} master` });
+    } finally {
+      setIsIngesting(false);
+    }
+  };
+
+  const openEditModal = (master) => {
+    setNewMasterName(master.masterName);
+    setEditMasterName(master.masterName);
+    setEditMasterStatus(master.active);
+    setIsEditMode(true);
+    setIsModalOpen(true);
+  };
+
   const handleIngest = async (e) => {
     if (e) e.preventDefault();
-    const masterToUse = activeView === 'update' ? selectedMaster : newMasterName;
-    if (!masterToUse.trim()) return;
+    if (!selectedMaster) return;
     
     setIsIngesting(true);
     const formData = new FormData();
-    formData.append('masterName', masterToUse);
+    formData.append('masterName', selectedMaster);
     if (ingestFile) formData.append('file', ingestFile);
     if (ingestText) formData.append('text', ingestText);
     
     try {
       await api.ingest(formData);
       setIngestStatus({ type: 'success', message: 'Knowledge indexed!' });
-      fetchMasters();
-      if (activeView !== 'update') {
-        setTimeout(() => { 
-          setIsModalOpen(false); 
-          setNewMasterName(''); 
-          setIngestText(''); 
-          setIngestFile(null); 
-          setIngestStatus(null); 
-        }, 1500);
-      } else {
-        setIngestText(''); 
-        setIngestFile(null); 
-        setTimeout(() => setIngestStatus(null), 3000);
-      }
+      setIngestText(''); 
+      setIngestFile(null); 
+      setTimeout(() => setIngestStatus(null), 3000);
     } catch (err) {
       setIngestStatus({ type: 'error', message: err.response?.data?.error || 'Failed' });
     } finally {
@@ -141,9 +178,16 @@ function App() {
         setSelectedMaster={setSelectedMaster}
         setActiveView={setActiveView}
         handleMasterDelete={handleMasterDelete}
+        openEditModal={openEditModal}
         openMenuId={openMenuId}
         setOpenMenuId={setOpenMenuId}
-        setIsModalOpen={setIsModalOpen}
+        setIsModalOpen={(isOpen) => {
+          setIsModalOpen(isOpen);
+          if (!isOpen) {
+            setIsEditMode(false);
+            setNewMasterName('');
+          }
+        }}
       />
 
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', backgroundColor: '#f9fafb' }}>
@@ -185,7 +229,12 @@ function App() {
         setIsModalOpen={setIsModalOpen}
         newMasterName={newMasterName}
         setNewMasterName={setNewMasterName}
-        handleIngest={handleIngest}
+        handleCreateMaster={handleCreateMaster}
+        isIngesting={isIngesting}
+        ingestStatus={ingestStatus}
+        isEditMode={isEditMode}
+        editMasterStatus={editMasterStatus}
+        setEditMasterStatus={setEditMasterStatus}
       />
     </div>
   );

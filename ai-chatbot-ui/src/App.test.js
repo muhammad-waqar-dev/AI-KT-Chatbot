@@ -9,7 +9,7 @@ test('renders header title', () => {
 
 test('input field accepts text', () => {
   render(<App />);
-  const input = screen.getByPlaceholderText(/Ask a question about Financials Master/i);
+  const input = screen.getByPlaceholderText(/Ask a question about Todo App/i);
   fireEvent.change(input, { target: { value: 'How does it work?' } });
   expect(input.value).toBe('How does it work?');
 });

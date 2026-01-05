@@ -8,17 +8,45 @@ const ChatView = ({ messages, messagesEndRef, input, setInput, sendMessage, isLo
       <div style={{ flex: 1, overflowY: 'auto', padding: '40px 20px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
         <div style={{ maxWidth: '1000px', margin: '0 auto', width: '100%', display: 'flex', flexDirection: 'column', gap: '24px' }}>
           {messages.map((msg, idx) => (
-            <div key={idx} style={{ alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start', maxWidth: '85%', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start' }}>
-                {msg.role === 'user' ? <User size={14} color="#64748b" /> : <Bot size={14} color="rgb(20, 18, 59)" />}
-                <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>{msg.role === 'user' ? 'You' : 'AI Assistant'}</span>
+            <div key={idx} style={{ 
+              alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start', 
+              maxWidth: '85%', 
+              display: 'flex', 
+              flexDirection: 'column', 
+              gap: '6px',
+              animation: 'fadeIn 0.3s ease-out'
+            }}>
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '8px', 
+                flexDirection: msg.role === 'user' ? 'row-reverse' : 'row',
+                padding: '0 4px'
+              }}>
+                <div style={{ 
+                  width: '24px', 
+                  height: '24px', 
+                  borderRadius: '6px', 
+                  backgroundColor: msg.role === 'user' ? 'rgba(20, 18, 59, 0.05)' : 'rgba(36, 252, 176, 0.1)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}>
+                  {msg.role === 'user' ? <User size={14} color="#64748b" /> : <Bot size={14} color="rgb(20, 18, 59)" />}
+                </div>
+                <span style={{ fontSize: '0.65rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  {msg.role === 'user' ? 'You' : 'AI Assistant'}
+                </span>
               </div>
               <div style={{ 
-                padding: '16px 24px', borderRadius: '16px', 
+                padding: '14px 20px', 
+                borderRadius: msg.role === 'user' ? '18px 4px 18px 18px' : '4px 18px 18px 18px', 
                 backgroundColor: msg.role === 'user' ? 'rgb(20, 18, 59)' : '#fff', 
                 color: msg.role === 'user' ? '#fff' : '#1e293b', 
-                boxShadow: '0 4px 15px rgba(0,0,0,0.05)', border: msg.role === 'user' ? 'none' : '1px solid #e2e8f0',
-                lineHeight: '1.6', fontSize: '1rem'
+                boxShadow: msg.role === 'user' ? '0 10px 15px -3px rgba(20, 18, 59, 0.2)' : '0 4px 15px rgba(0,0,0,0.05)', 
+                border: msg.role === 'user' ? 'none' : '1px solid #e2e8f0',
+                lineHeight: '1.6', 
+                fontSize: '0.95rem'
               }}>
                 <ReactMarkdown components={{ 
                   h1: ({node, ...props}) => <h1 style={{fontSize: '1.5rem', margin: '16px 0 8px 0', fontWeight: 800}} {...props} />,
