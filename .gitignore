@@ -1,0 +1,37 @@
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+*.iml
+*.ipr
+*.iws
+
+# Build artifacts
+target/
+build/
+dist/
+bin/
+out/
+
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Local Data & Training
+ai-chatbot-service/embeddings.json
+ai-chatbot-service/masters.txt
+
+# Environment / Logs
+.env
+.env.*
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS specific
+.DS_Store
+Thumbs.db
+
