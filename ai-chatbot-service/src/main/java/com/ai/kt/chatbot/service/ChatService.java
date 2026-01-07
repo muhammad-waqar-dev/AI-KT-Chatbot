@@ -131,17 +131,21 @@ public class ChatService {
         System.out.println("Processing User Message for Master [" + masterName + "]: " + message);
         
         StringBuilder fullResponse = new StringBuilder();
-        return assistant.chat(message)
-                .onNext(fullResponse::append)
+        TokenStream tokenStream = assistant.chat(message);
+
+        // Attach listeners for logging
+        tokenStream.onNext(fullResponse::append)
                 .onComplete(response -> {
-                    // Log the interaction to PostgreSQL Audit Log
                     ChatAuditLog auditLog = ChatAuditLog.builder()
                             .masterName(masterName)
                             .userPrompt(message)
                             .llmResponse(fullResponse.toString())
                             .build();
                     auditLogRepository.save(auditLog);
-                });
+                })
+                .onError(Throwable::printStackTrace);
+
+        return tokenStream;
     }
 
     private Assistant createAssistantForMaster(String masterName) {
@@ -173,7 +177,14 @@ public class ChatService {
                 .orElseThrow(() -> new IllegalArgumentException("Master not found: " + masterName));
 
         // 1. Upload to MinIO
-        String s3Key = "docs/" + master.getId() + "/" + UUID.randomUUID() + "-" + fileName;
+        String sanitizedMasterName = masterName.replaceAll("[^a-zA-Z0-9-_]", "_").toLowerCase();
+        String timestamp = java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss").format(java.time.LocalDateTime.now());
+        
+        // Revised structure: bucket-name / master_name / filename-timestamp.pdf
+        String baseName = fileName.contains(".") ? fileName.substring(0, fileName.lastIndexOf(".")) : fileName;
+        String extension = fileName.contains(".") ? fileName.substring(fileName.lastIndexOf(".")) : "";
+        String s3Key = sanitizedMasterName + "/" + baseName + "-" + timestamp + extension;
+        
         s3Client.putObject(PutObjectRequest.builder()
                 .bucket(bucketName)
                 .key(s3Key)

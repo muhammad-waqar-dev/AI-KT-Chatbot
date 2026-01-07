@@ -5,22 +5,77 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="37b20892-13a7-465a-b8d4-9a31e4641dd7" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/ai/kt/chatbot/model/ChatAuditLog.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/ai/kt/chatbot/model/DocumentInfo.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/ai/kt/chatbot/repository/ChatAuditLogRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/ai/kt/chatbot/repository/DocumentInfoRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/ai/kt/chatbot/utils/ChunkingUtils.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../README.md" beforeDir="false" afterPath="$PROJECT_DIR$/../README.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.minio.sys/api-version" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.minio.sys/buckets/.heal/mrf/list.bin" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.minio.sys/buckets/.usage-cache.bin.bkp/xl.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.minio.sys/buckets/.usage-cache.bin/xl.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.minio.sys/buckets/.usage.json.bkp/xl.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.minio.sys/buckets/.usage.json/xl.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.minio.sys/buckets/AI-Chatbot-Ingesion-Resource/.usage-cache.bin.bkp/xl.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.minio.sys/buckets/AI-Chatbot-Ingesion-Resource/.usage-cache.bin/xl.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.minio.sys/buckets/ai-chatbot-service/.usage-cache.bin.bkp/xl.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.minio.sys/buckets/ai-chatbot-service/.usage-cache.bin/xl.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.minio.sys/buckets/ai-chatbot-ui/.usage-cache.bin.bkp/xl.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.minio.sys/buckets/ai-chatbot-ui/.usage-cache.bin/xl.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.minio.sys/buckets/minio_data/.usage-cache.bin.bkp/xl.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.minio.sys/buckets/minio_data/.usage-cache.bin/xl.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.minio.sys/config/config.json/xl.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.minio.sys/config/history/9a463c59-04ee-43b2-b53e-d585bbfb3a50.kv/xl.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.minio.sys/config/iam/format.json/xl.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.minio.sys/format.bin" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.minio.sys/pool.bin/xl.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.minio.sys/stats.bin" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.minio.sys/tmp/.trash/2qzk/26f2fb39-37e0-4a45-886c-effa6a40f2be/xl.meta.bkp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.minio.sys/tmp/.trash/2qzk/29397369-605c-400d-b3d3-8cde32ee701a/xl.meta.bkp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.minio.sys/tmp/.trash/2qzk/381a8ceb-0d5c-4e1a-b018-95895b890a8e/xl.meta.bkp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.minio.sys/tmp/.trash/2qzk/45f4c279-47e7-42f1-95bb-8c97622e49f0/xl.meta.bkp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.minio.sys/tmp/.trash/2qzk/4d850a9d-efcd-469d-b987-267f3608a1af/xl.meta.bkp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.minio.sys/tmp/.trash/2qzk/6a62bf6e-5414-4e8f-8afd-1cea22082db6/xl.meta.bkp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.minio.sys/tmp/.trash/2qzk/71a36e5b-d3c4-4c8c-b794-43a642b44573/xl.meta.bkp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.minio.sys/tmp/.trash/2qzk/8a25a7ea-c3f5-437c-84d8-61c9c93b969f/xl.meta.bkp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.minio.sys/tmp/.trash/2qzk/8c103a87-c9c8-4252-92ce-8eeaf6be412e/xl.meta.bkp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.minio.sys/tmp/.trash/2qzk/906f45dc-259b-42a7-8280-3f7ad9394672/xl.meta.bkp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.minio.sys/tmp/.trash/2qzk/ba137469-d4da-4463-b47b-8a1866f2bc9b/xl.meta.bkp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.minio.sys/tmp/.trash/2qzk/f2a2bd2d-7ac2-4039-8f73-40db6e68ca8d/xl.meta.bkp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.minio.sys/tmp/.trash/2qzk/f4a2ba38-357c-4e3a-94b3-816a26e656e3/xl.meta.bkp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.minio.sys/tmp/.trash/2qzk/f9c4839c-84ce-4079-9374-360215ff442e/xl.meta.bkp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.minio.sys/tmp/f68feb01-2b4a-4636-a048-4197a8b476f2" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../minio.exe" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../minio.license" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../minio_data/.minio.sys/api-version" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../minio_data/.minio.sys/buckets/.heal/mrf/list.bin" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../minio_data/.minio.sys/buckets/.usage-cache.bin.bkp/xl.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../minio_data/.minio.sys/buckets/.usage-cache.bin/xl.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../minio_data/.minio.sys/buckets/.usage.json.bkp/xl.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../minio_data/.minio.sys/buckets/.usage.json/xl.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../minio_data/.minio.sys/buckets/ai-kt-docs-versioning-bucket/.metadata.bin/xl.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../minio_data/.minio.sys/buckets/ai-kt-docs-versioning-bucket/.usage-cache.bin.bkp/xl.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../minio_data/.minio.sys/buckets/ai-kt-docs-versioning-bucket/.usage-cache.bin/xl.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../minio_data/.minio.sys/config/config.json/xl.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../minio_data/.minio.sys/config/history/1ef9d339-7354-4895-a84c-50ae86e749f0.kv/xl.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../minio_data/.minio.sys/config/history/dab1097b-c3ef-4594-85fa-0f27d884fb51.kv/xl.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../minio_data/.minio.sys/config/iam/format.json/xl.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../minio_data/.minio.sys/format.bin" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../minio_data/.minio.sys/offline.bin" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../minio_data/.minio.sys/pool.bin/xl.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../minio_data/.minio.sys/stats.bin" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../minio_data/.minio.sys/tmp/cd7f4858-6eb9-41d4-83b1-cf145987851c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/../.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ai/kt/chatbot/config/AiConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ai/kt/chatbot/config/AiConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ai/kt/chatbot/controller/ChatController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ai/kt/chatbot/controller/ChatController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ai/kt/chatbot/model/Master.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ai/kt/chatbot/model/Master.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ai/kt/chatbot/model/DocumentInfo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ai/kt/chatbot/model/DocumentInfo.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/ai/kt/chatbot/service/ChatService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ai/kt/chatbot/service/ChatService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ai-chatbot-ui/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/../ai-chatbot-ui/src/App.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ai-chatbot-ui/src/components/CreateMasterModal.js" beforeDir="false" afterPath="$PROJECT_DIR$/../ai-chatbot-ui/src/components/CreateMasterModal.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ai-chatbot-ui/src/services/api.js" beforeDir="false" afterPath="$PROJECT_DIR$/../ai-chatbot-ui/src/services/api.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/ai/kt/chatbot/ChatbotApplication.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/ai/kt/chatbot/config/AiConfig.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/ai/kt/chatbot/controller/ChatController.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/ai/kt/chatbot/model/Master$MasterBuilder.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/ai/kt/chatbot/model/Master.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/ai/kt/chatbot/repository/MasterRepository.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/ai/kt/chatbot/service/ChatService$Assistant.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/ai/kt/chatbot/service/ChatService.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ai-chatbot-ui/src/components/ChatView.js" beforeDir="false" afterPath="$PROJECT_DIR$/../ai-chatbot-ui/src/components/ChatView.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ai-chatbot-ui/src/components/Sidebar.js" beforeDir="false" afterPath="$PROJECT_DIR$/../ai-chatbot-ui/src/components/Sidebar.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

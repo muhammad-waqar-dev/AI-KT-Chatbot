@@ -24,6 +24,10 @@ ai-chatbot-service/embeddings.json
 ai-chatbot-service/masters.txt
 minio.exe
 minio_data/*
+.minio.sys/*
+license.key
+minio.license
+ai-chatbot-service/.idea
 
 # Environment / Logs
 .env
