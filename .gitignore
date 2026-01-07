@@ -22,6 +22,8 @@ node_modules/
 # Local Data & Training
 ai-chatbot-service/embeddings.json
 ai-chatbot-service/masters.txt
+minio.exe
+minio_data/*
 
 # Environment / Logs
 .env
@@ -34,4 +36,5 @@ yarn-error.log*
 # OS specific
 .DS_Store
 Thumbs.db
+
 

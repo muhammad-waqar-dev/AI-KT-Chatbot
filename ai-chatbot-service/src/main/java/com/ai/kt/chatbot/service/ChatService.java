@@ -1,7 +1,12 @@
 package com.ai.kt.chatbot.service;
 
+import com.ai.kt.chatbot.model.ChatAuditLog;
+import com.ai.kt.chatbot.model.DocumentInfo;
 import com.ai.kt.chatbot.model.Master;
+import com.ai.kt.chatbot.repository.ChatAuditLogRepository;
+import com.ai.kt.chatbot.repository.DocumentInfoRepository;
 import com.ai.kt.chatbot.repository.MasterRepository;
+import com.ai.kt.chatbot.utils.ChunkingUtils;
 import dev.langchain4j.data.document.Document;
 import dev.langchain4j.data.document.DocumentParser;
 import dev.langchain4j.data.document.DocumentSplitter;
@@ -9,7 +14,6 @@ import dev.langchain4j.data.document.loader.FileSystemDocumentLoader;
 import dev.langchain4j.data.document.parser.TextDocumentParser;
 import dev.langchain4j.data.document.parser.apache.pdfbox.ApachePdfBoxDocumentParser;
 import dev.langchain4j.data.document.parser.apache.poi.ApachePoiDocumentParser;
-import dev.langchain4j.data.document.splitter.DocumentSplitters;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.memory.ChatMemory;
 import dev.langchain4j.model.chat.StreamingChatLanguageModel;
@@ -22,16 +26,17 @@ import dev.langchain4j.store.embedding.EmbeddingStore;
 import dev.langchain4j.store.embedding.EmbeddingStoreIngestor;
 import dev.langchain4j.store.embedding.filter.Filter;
 import dev.langchain4j.store.embedding.filter.MetadataFilterBuilder;
-import dev.langchain4j.store.embedding.inmemory.InMemoryEmbeddingStore;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -46,12 +51,13 @@ public class ChatService {
     private final EmbeddingStore<TextSegment> embeddingStore;
     private final ChatMemory chatMemory;
     private final MasterRepository masterRepository;
+    private final ChatAuditLogRepository auditLogRepository;
+    private final DocumentInfoRepository documentInfoRepository;
+    private final ChunkingUtils chunkingUtils;
+    private final S3Client s3Client;
 
-    @Value("${chatbot.system-message-template:You are a Senior %s Expert. Your job is to help developers understand the project using ONLY the provided context. If the answer is not in the context, say: 'I don't have specific project knowledge on this yet.' Be concise, professional, and use formatting like bold text and headings.}")
+    @Value("${chatbot.system-message-template}")
     private String systemMessageTemplate;
-
-    @Value("${chatbot.persistence.embedding-store.path:embeddings.json}")
-    private String embeddingStorePath;
 
     @Value("${chatbot.rag.max-results:3}")
     private int maxResults;
@@ -59,16 +65,13 @@ public class ChatService {
     @Value("${chatbot.rag.min-score:0.6}")
     private double minScore;
 
+    @Value("${chatbot.minio.bucket-name}")
+    private String bucketName;
+
     @PostConstruct
     public void init() {
         if (masterRepository.findAllByIsDeletedFalse().isEmpty()) {
-            addMaster("Todo App");
-        }
-    }
-
-    private void saveEmbeddingStore() {
-        if (embeddingStore instanceof InMemoryEmbeddingStore) {
-            ((InMemoryEmbeddingStore<TextSegment>) embeddingStore).serializeToFile(new File(embeddingStorePath).toPath());
+            addMaster("Todo App", "System");
         }
     }
 
@@ -87,10 +90,11 @@ public class ChatService {
         return masterRepository.findAllByIsDeletedFalse();
     }
 
-    public void addMaster(String name) {
+    public void addMaster(String name, String userName) {
         if (masterRepository.findByMasterName(name).isEmpty()) {
             Master master = Master.builder()
                     .masterName(name)
+                    .userName(userName)
                     .isActive(true)
                     .isDeleted(false)
                     .build();
@@ -106,13 +110,16 @@ public class ChatService {
         });
     }
 
-    public void updateMaster(String oldName, String newName, Boolean isActive) {
+    public void updateMaster(String oldName, String newName, Boolean isActive, String userName) {
         masterRepository.findByMasterName(oldName).ifPresent(master -> {
             if (newName != null && !newName.isBlank()) {
                 master.setMasterName(newName);
             }
             if (isActive != null) {
                 master.setActive(isActive);
+            }
+            if (userName != null && !userName.isBlank()) {
+                master.setUserName(userName);
             }
             masterRepository.save(master);
             System.out.println("Master [" + oldName + "] updated in DB.");
@@ -122,11 +129,22 @@ public class ChatService {
     public TokenStream chat(String message, String masterName) {
         Assistant assistant = createAssistantForMaster(masterName);
         System.out.println("Processing User Message for Master [" + masterName + "]: " + message);
-        return assistant.chat(message);
+        
+        StringBuilder fullResponse = new StringBuilder();
+        return assistant.chat(message)
+                .onNext(fullResponse::append)
+                .onComplete(response -> {
+                    // Log the interaction to PostgreSQL Audit Log
+                    ChatAuditLog auditLog = ChatAuditLog.builder()
+                            .masterName(masterName)
+                            .userPrompt(message)
+                            .llmResponse(fullResponse.toString())
+                            .build();
+                    auditLogRepository.save(auditLog);
+                });
     }
 
     private Assistant createAssistantForMaster(String masterName) {
-        // Create a filter to only retrieve segments belonging to this master
         Filter filter = MetadataFilterBuilder.metadataKey("master_name").isEqualTo(masterName);
 
         ContentRetriever contentRetriever = EmbeddingStoreContentRetriever.builder()
@@ -134,7 +152,7 @@ public class ChatService {
                 .embeddingModel(embeddingModel)
                 .maxResults(maxResults)
                 .minScore(minScore)
-                .filter(filter) // Apply the filter
+                .filter(filter)
                 .build();
 
         String systemMessage = String.format(systemMessageTemplate, masterName);
@@ -151,17 +169,39 @@ public class ChatService {
         String fileName = file.getOriginalFilename();
         if (fileName == null) return;
 
+        Master master = masterRepository.findByMasterName(masterName)
+                .orElseThrow(() -> new IllegalArgumentException("Master not found: " + masterName));
+
+        // 1. Upload to MinIO
+        String s3Key = "docs/" + master.getId() + "/" + UUID.randomUUID() + "-" + fileName;
+        s3Client.putObject(PutObjectRequest.builder()
+                .bucket(bucketName)
+                .key(s3Key)
+                .build(), RequestBody.fromBytes(file.getBytes()));
+        
+        String uploadedUrl = String.format("/%s/%s", bucketName, s3Key);
+
+        // 2. Save Metadata to PostgreSQL
+        DocumentInfo docInfo = DocumentInfo.builder()
+                .master(master)
+                .fileName(fileName)
+                .docType(getFileType(fileName))
+                .uploadedUrl(uploadedUrl)
+                .build();
+        documentInfoRepository.save(docInfo);
+
+        // 3. Ingest to Qdrant Cloud
         Path tempFile = Files.createTempFile("kt-doc-", fileName);
         file.transferTo(tempFile);
-
         DocumentParser parser = getParser(fileName);
 
         try {
             Document document = FileSystemDocumentLoader.loadDocument(tempFile, parser);
-            // Add metadata to the document
             document.metadata().add("master_name", masterName);
+            document.metadata().add("doc_id", docInfo.getId().toString());
+            document.metadata().add("file_type", docInfo.getDocType());
 
-            validateAndIngest(document, masterName);
+            validateAndIngest(document, masterName, fileName);
         } finally {
             Files.delete(tempFile);
         }
@@ -170,17 +210,19 @@ public class ChatService {
     public void ingestText(String text, String masterName) {
         Document document = Document.from(text);
         document.metadata().add("master_name", masterName);
-        validateAndIngest(document, masterName);
+        document.metadata().add("file_type", "raw_text");
+        validateAndIngest(document, masterName, "raw_text.txt");
     }
 
-    private void validateAndIngest(Document document, String masterName) {
+    private void validateAndIngest(Document document, String masterName, String fileName) {
         long wordCount = document.text().trim().isEmpty() ? 0 : document.text().split("\\s+").length;
         
         if (wordCount > 50000) {
             throw new IllegalArgumentException("Content too large! Max 50,000 words.");
         }
 
-        DocumentSplitter splitter = DocumentSplitters.recursive(1000, 100);
+        // Use new dynamic Chunking Utility
+        DocumentSplitter splitter = chunkingUtils.getSplitter(fileName);
         
         EmbeddingStoreIngestor ingestor = EmbeddingStoreIngestor.builder()
                 .documentSplitter(splitter)
@@ -189,8 +231,14 @@ public class ChatService {
                 .build();
 
         ingestor.ingest(document);
-        addMaster(masterName);
-        saveEmbeddingStore();
+        addMaster(masterName, "System");
+    }
+
+    private String getFileType(String fileName) {
+        if (fileName.contains(".")) {
+            return fileName.substring(fileName.lastIndexOf(".") + 1);
+        }
+        return "unknown";
     }
 
     private DocumentParser getParser(String fileName) {

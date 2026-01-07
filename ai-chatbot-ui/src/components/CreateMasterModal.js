@@ -1,7 +1,7 @@
 import React from 'react';
 import { CheckCircle2, AlertCircle } from 'lucide-react';
 
-const CreateMasterModal = ({ isModalOpen, setIsModalOpen, newMasterName, setNewMasterName, handleCreateMaster, isIngesting, ingestStatus, isEditMode, editMasterStatus, setEditMasterStatus }) => {
+const CreateMasterModal = ({ isModalOpen, setIsModalOpen, newMasterName, setNewMasterName, newMasterUser, setNewMasterUser, handleCreateMaster, isIngesting, ingestStatus, isEditMode, editMasterStatus, setEditMasterStatus }) => {
   if (!isModalOpen) return null;
 
   return (
@@ -13,6 +13,11 @@ const CreateMasterModal = ({ isModalOpen, setIsModalOpen, newMasterName, setNewM
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '20px' }}>
           <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'rgb(20, 18, 59)' }}>MASTER NAME</label>
           <input type="text" value={newMasterName} onChange={e => setNewMasterName(e.target.value)} placeholder="e.g. Invoicing App" style={{ width: '100%', padding: '14px', borderRadius: '10px', border: '1px solid #e2e8f0', outline: 'none', fontSize: '1rem' }} autoFocus />
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '20px' }}>
+          <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'rgb(20, 18, 59)' }}>OWNER NAME</label>
+          <input type="text" value={newMasterUser} onChange={e => setNewMasterUser(e.target.value)} placeholder="e.g. John Doe" style={{ width: '100%', padding: '14px', borderRadius: '10px', border: '1px solid #e2e8f0', outline: 'none', fontSize: '1rem' }} />
         </div>
 
         {isEditMode && (

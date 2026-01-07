@@ -21,6 +21,7 @@ function App() {
   const [openMenuId, setOpenMenuId] = useState(null);
   
   const [newMasterName, setNewMasterName] = useState('');
+  const [newMasterUser, setNewMasterUser] = useState('');
   const [isEditMode, setIsEditMode] = useState(false);
   const [editingMasterName, setEditMasterName] = useState('');
   const [editMasterStatus, setEditMasterStatus] = useState(true);
@@ -115,10 +116,10 @@ function App() {
     setIsIngesting(true);
     try {
       if (isEditMode) {
-        await api.updateMaster(editingMasterName, { name: newMasterName, isActive: editMasterStatus });
+        await api.updateMaster(editingMasterName, { name: newMasterName, isActive: editMasterStatus, userName: newMasterUser });
         setIngestStatus({ type: 'success', message: 'Master updated!' });
       } else {
-        await api.createMaster(newMasterName);
+        await api.createMaster(newMasterName, newMasterUser);
         setIngestStatus({ type: 'success', message: 'Master created!' });
       }
       fetchMasters();
@@ -126,6 +127,7 @@ function App() {
       setTimeout(() => {
         setIsModalOpen(false);
         setNewMasterName('');
+        setNewMasterUser('');
         setIsEditMode(false);
         setEditMasterName('');
         setIngestStatus(null);
@@ -139,6 +141,7 @@ function App() {
 
   const openEditModal = (master) => {
     setNewMasterName(master.masterName);
+    setNewMasterUser(master.userName || '');
     setEditMasterName(master.masterName);
     setEditMasterStatus(master.active);
     setIsEditMode(true);
@@ -186,6 +189,7 @@ function App() {
           if (!isOpen) {
             setIsEditMode(false);
             setNewMasterName('');
+            setNewMasterUser('');
           }
         }}
       />
@@ -229,6 +233,8 @@ function App() {
         setIsModalOpen={setIsModalOpen}
         newMasterName={newMasterName}
         setNewMasterName={setNewMasterName}
+        newMasterUser={newMasterUser}
+        setNewMasterUser={setNewMasterUser}
         handleCreateMaster={handleCreateMaster}
         isIngesting={isIngesting}
         ingestStatus={ingestStatus}
