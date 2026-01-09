@@ -4,12 +4,15 @@ import Sidebar from './components/Sidebar';
 import Header from './components/Header';
 import ChatView from './components/ChatView';
 import TrainingView from './components/TrainingView';
+import DocumentsView from './components/DocumentsView';
 import CreateMasterModal from './components/CreateMasterModal';
+import ConfirmationModal from './components/ConfirmationModal';
 import './styles/App.css';
 
 function App() {
   const [masters, setMasters] = useState([]);
   const [selectedMaster, setSelectedMaster] = useState('');
+  const [selectedMasterId, setSelectedMasterId] = useState(null);
   const [activeView, setActiveView] = useState('chat');
   const [messages, setMessages] = useState([
     { role: 'assistant', content: 'Hello! I am your AI KT Assistant. Select a Master and ask me anything about it.' }
@@ -19,6 +22,14 @@ function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [openMenuId, setOpenMenuId] = useState(null);
+
+  const [confirmModal, setConfirmModal] = useState({ 
+    isOpen: false, 
+    title: '', 
+    message: '', 
+    onConfirm: () => {},
+    masterToDelete: null 
+  });
   
   const [newMasterName, setNewMasterName] = useState('');
   const [newMasterIconUrl, setNewMasterIconUrl] = useState('');
@@ -52,27 +63,47 @@ function App() {
     try {
       const res = await api.getMasters();
       setMasters(res.data);
-      if (res.data.length > 0 && !selectedMaster) {
-        // Filter active ones for selection
-        const active = res.data.filter(m => m.active);
-        if (active.length > 0) {
-          setSelectedMaster(active[0].masterName);
+      if (res.data.length > 0) {
+        if (!selectedMaster) {
+          // Filter active ones for selection
+          const active = res.data.filter(m => m.active);
+          if (active.length > 0) {
+            setSelectedMaster(active[0].masterName);
+            setSelectedMasterId(active[0].id);
+          }
+        } else {
+          // Ensure the ID is synced with the name
+          const current = res.data.find(m => m.masterName === selectedMaster);
+          if (current) setSelectedMasterId(current.id);
         }
       }
     } catch (e) { console.error("Failed to fetch masters", e); }
   };
 
-  const handleMasterDelete = async (name) => {
-    if (!window.confirm(`Are you sure you want to delete ${name}?`)) return;
-    try {
-      await api.deleteMaster(name);
-      fetchMasters();
-      if (selectedMaster === name) {
-        const other = masters.find(m => m.masterName !== name);
-        setSelectedMaster(other ? other.masterName : '');
-        setActiveView('chat');
+  const handleMasterDelete = (name) => {
+    setConfirmModal({
+      isOpen: true,
+      title: 'Delete Master',
+      message: `Are you sure you want to delete "${name}"? This will remove all associated knowledge and settings.`,
+      masterToDelete: name,
+      onConfirm: async () => {
+        try {
+          await api.deleteMaster(name);
+          fetchMasters();
+          if (selectedMaster === name) {
+            const other = masters.find(m => m.masterName !== name);
+            setSelectedMaster(other ? other.masterName : '');
+            setSelectedMasterId(other ? other.id : null);
+            setActiveView('chat');
+          }
+          setConfirmModal(prev => ({ ...prev, isOpen: false }));
+        } catch (e) { 
+          console.error("Delete failed", e);
+          alert("Failed to delete master.");
+          setConfirmModal(prev => ({ ...prev, isOpen: false }));
+        }
       }
-    } catch (e) { console.error("Delete failed", e); }
+    });
   };
 
   const sendMessage = async (e) => {
@@ -122,12 +153,18 @@ function App() {
           iconUrl: newMasterIconUrl
         });
         setIngestStatus({ type: 'success', message: 'Master updated!' });
+        if (selectedMaster === editingMasterName) setSelectedMaster(newMasterName);
       } else {
         await api.createMaster(newMasterName, newMasterIconUrl);
         setIngestStatus({ type: 'success', message: 'Master created!' });
       }
       fetchMasters();
-      if (!isEditMode) setSelectedMaster(newMasterName);
+      if (!isEditMode) {
+        setSelectedMaster(newMasterName);
+        // We don't have the ID yet until fetchMasters finishes, 
+        // but fetchMasters will update it if selectedMaster is set.
+        // Actually, it only sets it if !selectedMaster.
+      }
       setTimeout(() => {
         setIsModalOpen(false);
         setNewMasterName('');
@@ -183,6 +220,8 @@ function App() {
         masters={masters}
         selectedMaster={selectedMaster}
         setSelectedMaster={setSelectedMaster}
+        selectedMasterId={selectedMasterId}
+        setSelectedMasterId={setSelectedMasterId}
         setActiveView={setActiveView}
         handleMasterDelete={handleMasterDelete}
         openEditModal={openEditModal}
@@ -217,6 +256,13 @@ function App() {
             isLoading={isLoading}
             selectedMaster={selectedMaster}
           />
+        ) : activeView === 'documents' ? (
+          <DocumentsView 
+            selectedMaster={selectedMaster}
+            selectedMasterId={selectedMasterId}
+            setActiveView={setActiveView}
+            activeView={activeView}
+          />
         ) : (
           <TrainingView 
             selectedMaster={selectedMaster}
@@ -245,6 +291,14 @@ function App() {
         isEditMode={isEditMode}
         editMasterStatus={editMasterStatus}
         setEditMasterStatus={setEditMasterStatus}
+      />
+
+      <ConfirmationModal 
+        isOpen={confirmModal.isOpen}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        onConfirm={confirmModal.onConfirm}
+        onCancel={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
       />
     </div>
   );

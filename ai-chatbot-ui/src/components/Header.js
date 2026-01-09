@@ -15,11 +15,15 @@ const Header = ({ isSidebarOpen, setIsSidebarOpen, activeView, selectedMaster, s
       )}
       <div className="header-title-wrapper">
         <span className="header-title">
-          {activeView === 'chat' ? selectedMaster : `Updating: ${selectedMaster}`}
+          {activeView === 'chat' 
+            ? selectedMaster 
+            : activeView === 'documents' 
+              ? `Knowledge Base: ${selectedMaster}`
+              : `Updating: ${selectedMaster}`}
         </span>
         <div className="header-badge">Active</div>
       </div>
-      {activeView === 'update' && (
+      {(activeView === 'update' || activeView === 'documents') && (
         <button 
           className="back-to-chat-btn"
           onClick={() => setActiveView('chat')} 

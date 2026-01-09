@@ -34,6 +34,9 @@ public class DocumentInfo {
     @Column(name = "file_name")
     private String fileName;
 
+    @Column(name = "s3_key")
+    private String s3Key;
+
     @CreationTimestamp
     @Column(name = "created_at")
     private LocalDateTime createdAt;

@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -34,6 +35,31 @@ public class ChatController {
     @GetMapping("/masters")
     public ResponseEntity<List<Master>> getMasters() {
         return ResponseEntity.ok(chatService.getMastersObjects());
+    }
+
+    @GetMapping("/masters/{id}/documents")
+    public ResponseEntity<List<Map<String, Object>>> getDocuments(@PathVariable Long id) {
+        List<com.ai.kt.chatbot.model.DocumentInfo> docs = chatService.getDocumentsByMasterId(id);
+        List<Map<String, Object>> result = docs.stream().map(doc -> {
+            Map<String, Object> map = new java.util.HashMap<>();
+            map.put("id", doc.getId());
+            map.put("fileName", doc.getFileName());
+            map.put("docType", doc.getDocType());
+            map.put("createdAt", doc.getCreatedAt());
+            return map;
+        }).collect(java.util.stream.Collectors.toList());
+        return ResponseEntity.ok(result);
+    }
+
+    @DeleteMapping("/masters/{masterId}/documents/{docId}")
+    public ResponseEntity<Map<String, String>> deleteDocument(@PathVariable Long masterId, @PathVariable Long docId) {
+        chatService.deleteDocument(masterId, docId);
+        return ResponseEntity.ok(Map.of("message", "Document deleted successfully"));
+    }
+
+    @GetMapping("/masters/{masterId}/documents/{docId}/download")
+    public ResponseEntity<org.springframework.core.io.Resource> downloadDocument(@PathVariable Long masterId, @PathVariable Long docId) {
+        return chatService.downloadDocument(masterId, docId);
     }
 
     @DeleteMapping("/masters/{name}")

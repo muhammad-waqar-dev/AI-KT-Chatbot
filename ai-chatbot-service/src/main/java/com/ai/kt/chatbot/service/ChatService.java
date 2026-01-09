@@ -145,6 +145,82 @@ public class ChatService {
         });
     }
 
+    public List<DocumentInfo> getDocumentsByMasterId(Long masterId) {
+        return documentInfoRepository.findAllByMasterId(masterId);
+    }
+
+    public void deleteDocument(Long masterId, Long docId) {
+        DocumentInfo docInfo = documentInfoRepository.findById(docId)
+                .orElseThrow(() -> new IllegalArgumentException("Document not found: " + docId));
+
+        if (!docInfo.getMaster().getId().equals(masterId)) {
+            throw new IllegalArgumentException("Document does not belong to the specified master");
+        }
+
+        // 1. Delete from MinIO
+        String s3Key = docInfo.getS3Key();
+        if (s3Key == null || s3Key.isBlank()) {
+            s3Key = docInfo.getUploadedUrl();
+            if (s3Key != null && s3Key.startsWith("/" + bucketName + "/")) {
+                s3Key = s3Key.substring(bucketName.length() + 2);
+            }
+        }
+
+        if (s3Key != null && !s3Key.isBlank()) {
+            try {
+                System.out.println("Deleting from MinIO: " + s3Key);
+                s3Client.deleteObject(software.amazon.awssdk.services.s3.model.DeleteObjectRequest.builder()
+                        .bucket(bucketName)
+                        .key(s3Key)
+                        .build());
+            } catch (Exception e) {
+                System.err.println("Warning: Failed to delete file from MinIO: " + e.getMessage());
+            }
+        }
+
+        // 2. Delete from DB
+        documentInfoRepository.deleteById(docId);
+    }
+
+    public org.springframework.http.ResponseEntity<org.springframework.core.io.Resource> downloadDocument(Long masterId, Long docId) {
+        DocumentInfo docInfo = documentInfoRepository.findById(docId)
+                .orElseThrow(() -> new IllegalArgumentException("Document not found: " + docId));
+
+        if (!docInfo.getMaster().getId().equals(masterId)) {
+            throw new IllegalArgumentException("Document does not belong to the specified master");
+        }
+
+        String s3Key = docInfo.getS3Key();
+        // Fallback for older records if s3Key is null
+        if (s3Key == null || s3Key.isBlank()) {
+            s3Key = docInfo.getUploadedUrl();
+            if (s3Key != null && s3Key.startsWith("/" + bucketName + "/")) {
+                s3Key = s3Key.substring(bucketName.length() + 2);
+            }
+        }
+
+        System.out.println("Attempting to download from MinIO. Bucket: [" + bucketName + "], Key: [" + s3Key + "]");
+
+        try {
+            software.amazon.awssdk.services.s3.model.GetObjectRequest getObjectRequest = software.amazon.awssdk.services.s3.model.GetObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(s3Key)
+                    .build();
+
+            byte[] content = s3Client.getObjectAsBytes(getObjectRequest).asByteArray();
+            org.springframework.core.io.ByteArrayResource resource = new org.springframework.core.io.ByteArrayResource(content);
+
+            return org.springframework.http.ResponseEntity.ok()
+                    .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + docInfo.getFileName() + "\"")
+                    .contentType(org.springframework.http.MediaType.APPLICATION_OCTET_STREAM)
+                    .contentLength(content.length)
+                    .body(resource);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Failed to download file from storage: " + e.getMessage());
+        }
+    }
+
     public TokenStream chat(String message, String masterName) {
         Assistant assistant = createAssistantForMaster(masterName);
         System.out.println("Processing User Message for Master [" + masterName + "]: " + message);
@@ -204,9 +280,11 @@ public class ChatService {
         String sanitizedMasterName = masterName.replaceAll("[^a-zA-Z0-9-_]", "_").toLowerCase();
         String timestamp = java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss").format(java.time.LocalDateTime.now());
         
-        String baseName = fileName.contains(".") ? fileName.substring(0, fileName.lastIndexOf(".")) : fileName;
+        String rawBaseName = fileName.contains(".") ? fileName.substring(0, fileName.lastIndexOf(".")) : fileName;
+        // Sanitize the filename: replace spaces and special characters with underscores
+        String sanitizedBaseName = rawBaseName.replaceAll("[^a-zA-Z0-9-_]", "_");
         String extension = fileName.contains(".") ? fileName.substring(fileName.lastIndexOf(".")) : "";
-        String s3Key = sanitizedMasterName + "/" + baseName + "-" + timestamp + extension;
+        String s3Key = sanitizedMasterName + "/" + sanitizedBaseName + "-" + timestamp + extension;
         
         System.out.println("Uploading to MinIO: " + s3Key);
         s3Client.putObject(PutObjectRequest.builder()
@@ -222,6 +300,7 @@ public class ChatService {
                 .fileName(fileName)
                 .docType(getFileType(fileName))
                 .uploadedUrl(uploadedUrl)
+                .s3Key(s3Key)
                 .build();
         documentInfoRepository.save(docInfo);
 

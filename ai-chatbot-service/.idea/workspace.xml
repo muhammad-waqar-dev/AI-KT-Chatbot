@@ -4,7 +4,20 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="37b20892-13a7-465a-b8d4-9a31e4641dd7" name="Changes" comment="" />
+    <list default="true" id="37b20892-13a7-465a-b8d4-9a31e4641dd7" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/../ai-chatbot-ui/src/components/ConfirmationModal.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ai-chatbot-ui/src/components/DocumentsView.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ai-chatbot-ui/src/styles/ConfirmationModal.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ai-chatbot-ui/src/styles/DocumentsView.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ai/kt/chatbot/controller/ChatController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ai/kt/chatbot/controller/ChatController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ai/kt/chatbot/model/DocumentInfo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ai/kt/chatbot/model/DocumentInfo.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ai/kt/chatbot/service/ChatService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ai/kt/chatbot/service/ChatService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ai-chatbot-ui/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/../ai-chatbot-ui/src/App.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ai-chatbot-ui/src/components/Header.js" beforeDir="false" afterPath="$PROJECT_DIR$/../ai-chatbot-ui/src/components/Header.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ai-chatbot-ui/src/components/Sidebar.js" beforeDir="false" afterPath="$PROJECT_DIR$/../ai-chatbot-ui/src/components/Sidebar.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ai-chatbot-ui/src/services/api.js" beforeDir="false" afterPath="$PROJECT_DIR$/../ai-chatbot-ui/src/services/api.js" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -24,7 +37,7 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
-    "Application.ChatbotApplication.executor": "Coverage",
+    "Application.ChatbotApplication.executor": "Run",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
@@ -51,5 +64,10 @@
     <option featureType="dependencySupport" implementationName="java:org.springframework.boot:spring-boot" />
     <option featureType="dependencySupport" implementationName="java:org.springframework:spring-webmvc" />
     <option featureType="dependencySupport" implementationName="java:org.projectlombok:lombok" />
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/ai_chatbot_service$ChatbotApplication.ic" NAME="ChatbotApplication Coverage Results" MODIFIED="1767987447356" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true">
+      <FILTER>com.ai.kt.chatbot.*</FILTER>
+    </SUITE>
   </component>
 </project>

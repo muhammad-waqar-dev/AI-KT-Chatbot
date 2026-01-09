@@ -7,6 +7,9 @@ export const api = {
   createMaster: (name, iconUrl) => axios.post(`${API_BASE_URL}/masters`, { name, iconUrl }),
   updateMaster: (oldName, data) => axios.put(`${API_BASE_URL}/masters/${encodeURIComponent(oldName)}`, data),
   deleteMaster: (name) => axios.delete(`${API_BASE_URL}/masters/${encodeURIComponent(name)}`),
+  getDocuments: (masterId) => axios.get(`${API_BASE_URL}/masters/${masterId}/documents`),
+  deleteDocument: (masterId, docId) => axios.delete(`${API_BASE_URL}/masters/${masterId}/documents/${docId}`),
+  downloadDocument: (masterId, docId) => axios.get(`${API_BASE_URL}/masters/${masterId}/documents/${docId}/download`, { responseType: 'blob' }),
   ingest: (formData) => axios.post(`${API_BASE_URL}/ingest`, formData),
   getChatStream: async (input, masterName, onToken, onDone, onError) => {
     try {

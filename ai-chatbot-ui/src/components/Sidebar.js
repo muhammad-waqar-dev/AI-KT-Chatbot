@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Layout, X, PlusCircle, FileText, MoreVertical, Edit3, Trash2, ChevronDown, ChevronRight, Settings, Users, Database } from 'lucide-react';
+import { Layout, X, PlusCircle, FileText, MoreVertical, Edit3, Trash2, ChevronDown, ChevronRight, Settings, Users, Database, File } from 'lucide-react';
 import '../styles/Sidebar.css';
 
 const Sidebar = ({ 
@@ -8,6 +8,8 @@ const Sidebar = ({
   masters, 
   selectedMaster, 
   setSelectedMaster, 
+  selectedMasterId,
+  setSelectedMasterId,
   setActiveView, 
   handleMasterDelete, 
   openEditModal,
@@ -59,7 +61,11 @@ const Sidebar = ({
               <div 
                 key={m} 
                 className={`sidebar-item ${selectedMaster === m ? 'selected' : ''} ${!isActive ? 'inactive' : ''}`}
-                onClick={() => { setSelectedMaster(m); setActiveView('chat'); }}
+                onClick={() => { 
+                  setSelectedMaster(m); 
+                  setSelectedMasterId(master.id);
+                  setActiveView('chat'); 
+                }}
               >
                 <div className="master-info">
                   {master.iconUrl ? (
@@ -96,7 +102,25 @@ const Sidebar = ({
                       </button>
                       <button 
                         className="dropdown-item"
-                        onClick={(e) => { e.stopPropagation(); setActiveView('update'); setOpenMenuId(null); }}
+                        onClick={(e) => { 
+                          e.stopPropagation(); 
+                          setActiveView('documents'); 
+                          setOpenMenuId(null); 
+                          setSelectedMaster(m); 
+                          setSelectedMasterId(master.id);
+                        }}
+                      >
+                        <File size={16} /> View Documents
+                      </button>
+                      <button 
+                        className="dropdown-item"
+                        onClick={(e) => { 
+                          e.stopPropagation(); 
+                          setActiveView('update'); 
+                          setOpenMenuId(null); 
+                          setSelectedMaster(m); 
+                          setSelectedMasterId(master.id);
+                        }}
                       >
                         <FileText size={16} /> Update Knowledge
                       </button>
