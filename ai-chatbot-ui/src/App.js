@@ -21,7 +21,7 @@ function App() {
   const [openMenuId, setOpenMenuId] = useState(null);
   
   const [newMasterName, setNewMasterName] = useState('');
-  const [newMasterUser, setNewMasterUser] = useState('');
+  const [newMasterIconUrl, setNewMasterIconUrl] = useState('');
   const [isEditMode, setIsEditMode] = useState(false);
   const [editingMasterName, setEditMasterName] = useState('');
   const [editMasterStatus, setEditMasterStatus] = useState(true);
@@ -68,8 +68,8 @@ function App() {
       await api.deleteMaster(name);
       fetchMasters();
       if (selectedMaster === name) {
-        const other = masters.find(m => m !== name);
-        setSelectedMaster(other || '');
+        const other = masters.find(m => m.masterName !== name);
+        setSelectedMaster(other ? other.masterName : '');
         setActiveView('chat');
       }
     } catch (e) { console.error("Delete failed", e); }
@@ -116,10 +116,14 @@ function App() {
     setIsIngesting(true);
     try {
       if (isEditMode) {
-        await api.updateMaster(editingMasterName, { name: newMasterName, isActive: editMasterStatus, userName: newMasterUser });
+        await api.updateMaster(editingMasterName, { 
+          name: newMasterName, 
+          isActive: editMasterStatus,
+          iconUrl: newMasterIconUrl
+        });
         setIngestStatus({ type: 'success', message: 'Master updated!' });
       } else {
-        await api.createMaster(newMasterName, newMasterUser);
+        await api.createMaster(newMasterName, newMasterIconUrl);
         setIngestStatus({ type: 'success', message: 'Master created!' });
       }
       fetchMasters();
@@ -127,7 +131,7 @@ function App() {
       setTimeout(() => {
         setIsModalOpen(false);
         setNewMasterName('');
-        setNewMasterUser('');
+        setNewMasterIconUrl('');
         setIsEditMode(false);
         setEditMasterName('');
         setIngestStatus(null);
@@ -141,7 +145,7 @@ function App() {
 
   const openEditModal = (master) => {
     setNewMasterName(master.masterName);
-    setNewMasterUser(master.userName || '');
+    setNewMasterIconUrl(master.iconUrl || '');
     setEditMasterName(master.masterName);
     setEditMasterStatus(master.active);
     setIsEditMode(true);
@@ -189,7 +193,7 @@ function App() {
           if (!isOpen) {
             setIsEditMode(false);
             setNewMasterName('');
-            setNewMasterUser('');
+            setNewMasterIconUrl('');
           }
         }}
       />
@@ -233,8 +237,8 @@ function App() {
         setIsModalOpen={setIsModalOpen}
         newMasterName={newMasterName}
         setNewMasterName={setNewMasterName}
-        newMasterUser={newMasterUser}
-        setNewMasterUser={setNewMasterUser}
+        newMasterIconUrl={newMasterIconUrl}
+        setNewMasterIconUrl={setNewMasterIconUrl}
         handleCreateMaster={handleCreateMaster}
         isIngesting={isIngesting}
         ingestStatus={ingestStatus}

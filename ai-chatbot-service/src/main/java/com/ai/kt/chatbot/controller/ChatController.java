@@ -3,6 +3,7 @@ package com.ai.kt.chatbot.controller;
 import com.ai.kt.chatbot.model.Master;
 import com.ai.kt.chatbot.service.ChatService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,10 +17,19 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:3000", allowedHeaders = "*", methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.OPTIONS})
+@CrossOrigin(origins = "${chatbot.cors.allowed-origins:http://localhost:3000}", allowedHeaders = "*", methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.OPTIONS})
 public class ChatController {
 
     private final ChatService chatService;
+
+    @Value("${chatbot.default-master-name:Fusion}")
+    private String defaultMasterName;
+
+    @Value("${chatbot.sse.timeout:0}")
+    private Long sseTimeout;
+
+    @Value("${chatbot.ingestion.anonymous-user:Anonymous}")
+    private String anonymousUser;
 
     @GetMapping("/masters")
     public ResponseEntity<List<Master>> getMasters() {
@@ -39,16 +49,17 @@ public class ChatController {
         String newName = (String) request.get("name");
         Boolean isActive = (Boolean) request.get("isActive");
         String userName = (String) request.get("userName");
+        String iconUrl = (String) request.get("iconUrl");
         
-        chatService.updateMaster(oldName, newName, isActive, userName);
+        chatService.updateMaster(oldName, newName, isActive, userName, iconUrl);
         return ResponseEntity.ok(Map.of("message", "Master updated successfully"));
     }
 
     @PostMapping(value = "/chat", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter chat(@RequestBody Map<String, String> request) {
-        SseEmitter emitter = new SseEmitter(0L);
+        SseEmitter emitter = new SseEmitter(sseTimeout);
         String message = request.get("message");
-        String masterName = request.getOrDefault("masterName", "Todo App");
+        String masterName = request.getOrDefault("masterName", defaultMasterName);
 
         chatService.chat(message, masterName)
                 .onNext(token -> {
@@ -72,10 +83,11 @@ public class ChatController {
     public ResponseEntity<Map<String, String>> createMaster(@RequestBody Map<String, String> request) {
         String name = request.get("name");
         String userName = request.get("userName");
+        String iconUrl = request.get("iconUrl");
         if (name == null || name.isBlank()) {
             return ResponseEntity.badRequest().body(Map.of("error", "Master name is required"));
         }
-        chatService.addMaster(name, userName != null ? userName : "Anonymous");
+        chatService.addMaster(name, userName != null ? userName : anonymousUser, iconUrl);
         return ResponseEntity.ok(Map.of("message", "Master created successfully"));
     }
 

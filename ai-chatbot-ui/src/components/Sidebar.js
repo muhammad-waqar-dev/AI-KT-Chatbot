@@ -1,5 +1,6 @@
-import React from 'react';
-import { Layout, X, PlusCircle, FileText, MoreVertical, Edit3, Trash2 } from 'lucide-react';
+import React, { useState } from 'react';
+import { Layout, X, PlusCircle, FileText, MoreVertical, Edit3, Trash2, ChevronDown, ChevronRight, Settings, Users, Database } from 'lucide-react';
+import '../styles/Sidebar.css';
 
 const Sidebar = ({ 
   isSidebarOpen, 
@@ -14,113 +15,135 @@ const Sidebar = ({
   setOpenMenuId, 
   setIsModalOpen 
 }) => {
+  const [isMastersOpen, setIsMastersOpen] = useState(true);
+  const [isAdminOpen, setIsAdminOpen] = useState(false);
+
   return (
-    <aside style={{ 
-      width: isSidebarOpen ? '300px' : '0', 
-      backgroundColor: 'rgb(20, 18, 59)', 
-      color: '#fff', 
-      display: 'flex', 
-      flexDirection: 'column', 
-      transition: 'width 0.3s cubic-bezier(0.4, 0, 0.2, 1)', 
-      overflow: 'hidden', 
-      flexShrink: 0,
-      boxShadow: isSidebarOpen ? '4px 0 10px rgba(0,0,0,0.1)' : 'none'
-    }}>
-      <div style={{ padding: '24px', width: '300px', display: 'flex', flexDirection: 'column', height: '100%' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '32px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: '0' }}>
-            <Layout size={28} color="rgb(36, 252, 176)" style={{ flexShrink: 0 }} />
-            <h2 style={{ fontSize: '1.2rem', fontWeight: 800, letterSpacing: '-0.02em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>AI Assistant</h2>
+    <aside className={`sidebar-aside ${isSidebarOpen ? 'open' : ''}`}>
+      <div className="sidebar-content">
+        <div className="sidebar-header">
+          <div className="sidebar-logo">
+            <Layout size={28} color="rgb(36, 252, 176)" />
+            <h2>AI Assistant</h2>
           </div>
           <button 
+            className="close-sidebar-btn"
             onClick={() => setIsSidebarOpen(false)} 
-            style={{ 
-              background: 'rgba(255,255,255,0.1)', 
-              border: 'none', 
-              cursor: 'pointer', 
-              color: '#fff', 
-              padding: '8px', 
-              borderRadius: '8px', 
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              flexShrink: 0
-            }}
           >
             <X size={18} />
           </button>
         </div>
 
-        <button onClick={() => { setIsModalOpen(true); setActiveView('chat'); }} style={{ width: '100%', padding: '14px', borderRadius: '10px', backgroundColor: 'rgb(36, 252, 176)', color: 'rgb(20, 18, 59)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', fontWeight: 700, marginBottom: '32px', boxShadow: '0 4px 12px rgba(36, 252, 176, 0.3)', transition: 'transform 0.2s', flexShrink: 0 }}>
+        <button 
+          className="new-master-btn"
+          onClick={() => { setIsModalOpen(true); setActiveView('chat'); }}
+        >
           <PlusCircle size={20} /> New Master
         </button>
 
-        <p style={{ fontSize: '0.7rem', textTransform: 'uppercase', color: 'rgba(255,255,255,0.5)', marginBottom: '16px', fontWeight: 700, letterSpacing: '0.1em', flexShrink: 0 }}>Project Masters</p>
-        
-        <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden' }}>
-          {masters.map(master => {
-            const m = master.masterName;
-            const isActive = master.active;
-            
-            return (
-            <div key={m} className="sidebar-item" style={{ 
-              display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', padding: '12px 16px', borderRadius: '8px', cursor: 'pointer', 
-              backgroundColor: selectedMaster === m ? 'rgba(255,255,255,0.1)' : 'transparent', 
-                marginBottom: '8px', transition: 'background 0.2s', minWidth: 0,
-                opacity: isActive ? 1 : 0.5
-            }} onClick={() => { setSelectedMaster(m); setActiveView('chat'); }}>
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', flex: 1, minWidth: 0 }}>
-                <FileText size={16} color={selectedMaster === m ? 'rgb(36, 252, 176)' : 'rgba(255,255,255,0.5)'} style={{ marginTop: '2px', flexShrink: 0 }} />
-                <span style={{ 
-                  color: selectedMaster === m ? '#fff' : 'rgba(255,255,255,0.7)', 
-                  fontSize: '0.95rem', 
-                  fontWeight: selectedMaster === m ? 600 : 400,
-                  wordBreak: 'break-word',
-                  lineHeight: '1.4'
-                }}>{m}</span>
+        <div className="sidebar-accordion">
+          <div 
+            className="sidebar-accordion-header" 
+            onClick={() => setIsMastersOpen(!isMastersOpen)}
+          >
+            <span className="sidebar-section-label">Project Masters</span>
+            {isMastersOpen ? <ChevronDown size={14} className="accordion-icon" /> : <ChevronRight size={14} className="accordion-icon" />}
+          </div>
+          
+          <div className={`masters-list ${isMastersOpen ? 'expanded' : 'collapsed'}`}>
+            {masters.map(master => {
+              const m = master.masterName;
+              const isActive = master.active;
+              
+              return (
+              <div 
+                key={m} 
+                className={`sidebar-item ${selectedMaster === m ? 'selected' : ''} ${!isActive ? 'inactive' : ''}`}
+                onClick={() => { setSelectedMaster(m); setActiveView('chat'); }}
+              >
+                <div className="master-info">
+                  {master.iconUrl ? (
+                    <img 
+                      src={master.iconUrl} 
+                      alt="" 
+                      className="master-icon-img" 
+                    />
+                  ) : (
+                    <FileText 
+                      size={16} 
+                      color={selectedMaster === m ? 'rgb(36, 252, 176)' : 'rgba(255,255,255,0.5)'} 
+                      style={{ marginTop: '2px', flexShrink: 0 }} 
+                    />
+                  )}
+                  <span className="master-name">{m}</span>
+                </div>
+                <div className="menu-trigger-wrapper">
+                  <MoreVertical 
+                    size={20} 
+                    className={`more-icon ${openMenuId === m ? 'open' : ''}`} 
+                    onClick={(e) => { 
+                      e.stopPropagation(); 
+                      setOpenMenuId(openMenuId === m ? null : m); 
+                    }} 
+                  />
+                  {openMenuId === m && (
+                    <div className="dropdown-menu">
+                      <button 
+                        className="dropdown-item"
+                        onClick={(e) => { e.stopPropagation(); openEditModal(master); setOpenMenuId(null); }}
+                      >
+                        <Edit3 size={16} /> Edit Details
+                      </button>
+                      <button 
+                        className="dropdown-item"
+                        onClick={(e) => { e.stopPropagation(); setActiveView('update'); setOpenMenuId(null); }}
+                      >
+                        <FileText size={16} /> Update Knowledge
+                      </button>
+                      <button 
+                        className="dropdown-item delete"
+                        onClick={(e) => { e.stopPropagation(); handleMasterDelete(m); setOpenMenuId(null); }}
+                      >
+                        <Trash2 size={16} /> Delete
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
-              <div style={{ position: 'relative', display: 'flex', flexShrink: 0, marginLeft: '8px' }}>
-                <MoreVertical 
-                  size={20} 
-                  className="more-icon" 
-                  style={{ 
-                    opacity: (selectedMaster === m || openMenuId === m) ? 1 : 0.6, 
-                    transition: 'all 0.2s', 
-                    color: openMenuId === m ? 'rgb(36, 252, 176)' : 'rgba(255,255,255,0.7)', 
-                    cursor: 'pointer', 
-                    padding: '6px', 
-                    margin: '-6px',
-                    backgroundColor: openMenuId === m ? 'rgba(255,255,255,0.15)' : 'transparent',
-                    borderRadius: '6px'
-                  }} 
-                  onClick={(e) => { 
-                    e.stopPropagation(); 
-                    setOpenMenuId(openMenuId === m ? null : m); 
-                  }} 
-                />
-                {openMenuId === m && (
-                  <div style={{ 
-                    position: 'absolute', 
-                    right: '28px', 
-                    top: '0', 
-                    backgroundColor: '#fff', 
-                    color: '#1f2937', 
-                    borderRadius: '8px', 
-                    boxShadow: '0 10px 30px rgba(0,0,0,0.4)', 
-                    zIndex: 100000, 
-                    width: '150px', 
-                    padding: '8px', 
-                    border: '1px solid #e5e7eb' 
-                  }}>
-                      <button onClick={(e) => { e.stopPropagation(); openEditModal(master); setOpenMenuId(null); }} style={{ width: '100%', padding: '12px', border: 'none', backgroundColor: 'transparent', textAlign: 'left', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.9rem', borderRadius: '6px', color: '#1f2937' }} onMouseEnter={e => e.target.style.backgroundColor = '#f3f4f6'} onMouseLeave={e => e.target.style.backgroundColor = 'transparent'}><Edit3 size={16} /> Edit Details</button>
-                      <button onClick={(e) => { e.stopPropagation(); setActiveView('update'); setOpenMenuId(null); }} style={{ width: '100%', padding: '12px', border: 'none', backgroundColor: 'transparent', textAlign: 'left', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.9rem', borderRadius: '6px', color: '#1f2937' }} onMouseEnter={e => e.target.style.backgroundColor = '#f3f4f6'} onMouseLeave={e => e.target.style.backgroundColor = 'transparent'}><FileText size={16} /> Update Knowledge</button>
-                    <button onClick={(e) => { e.stopPropagation(); handleMasterDelete(m); setOpenMenuId(null); }} style={{ width: '100%', padding: '12px', border: 'none', backgroundColor: 'transparent', textAlign: 'left', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.9rem', color: '#ef4444', borderRadius: '6px' }} onMouseEnter={e => e.target.style.backgroundColor = '#fef2f2'} onMouseLeave={e => e.target.style.backgroundColor = 'transparent'}><Trash2 size={16} /> Delete</button>
-                  </div>
-                )}
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="sidebar-accordion" style={{ marginTop: '16px' }}>
+          <div 
+            className="sidebar-accordion-header" 
+            onClick={() => setIsAdminOpen(!isAdminOpen)}
+          >
+            <span className="sidebar-section-label">Administrations</span>
+            {isAdminOpen ? <ChevronDown size={14} className="accordion-icon" /> : <ChevronRight size={14} className="accordion-icon" />}
+          </div>
+          
+          <div className={`admin-list ${isAdminOpen ? 'expanded' : 'collapsed'}`}>
+            <div className="sidebar-item" onClick={() => setActiveView('users')}>
+              <div className="master-info">
+                <Users size={16} color="rgba(255,255,255,0.5)" />
+                <span className="master-name">User Management</span>
               </div>
             </div>
-            );
-          })}
+            <div className="sidebar-item" onClick={() => setActiveView('settings')}>
+              <div className="master-info">
+                <Settings size={16} color="rgba(255,255,255,0.5)" />
+                <span className="master-name">System Settings</span>
+              </div>
+            </div>
+            <div className="sidebar-item" onClick={() => setActiveView('database')}>
+              <div className="master-info">
+                <Users size={16} color="rgba(255,255,255,0.5)" />
+                <span className="master-name">Database Logs</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </aside>
@@ -128,4 +151,3 @@ const Sidebar = ({
 };
 
 export default Sidebar;
-

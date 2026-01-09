@@ -38,6 +38,15 @@ public class AiConfig {
     @Value("${chatbot.qdrant.collection-name}")
     private String qdrantCollectionName;
 
+    @Value("${chatbot.qdrant.port:6334}")
+    private int qdrantPort;
+
+    @Value("${chatbot.qdrant.use-tls:false}")
+    private boolean qdrantUseTls;
+
+    @Value("${chatbot.chat-memory.max-messages:10}")
+    private int maxMessages;
+
     @Value("${chatbot.minio.access-key}")
     private String minioAccessKey;
 
@@ -80,10 +89,10 @@ public class AiConfig {
 
         return QdrantEmbeddingStore.builder()
                 .host(host)
-                .port(6334)
+                .port(qdrantPort)
                 .apiKey(qdrantApiKey)
                 .collectionName(qdrantCollectionName)
-                .useTls(false) // Required for local Qdrant
+                .useTls(qdrantUseTls)
                 .build();
     }
 
@@ -100,6 +109,6 @@ public class AiConfig {
 
     @Bean
     public ChatMemory chatMemory() {
-        return MessageWindowChatMemory.withMaxMessages(10);
+        return MessageWindowChatMemory.withMaxMessages(maxMessages);
     }
 }

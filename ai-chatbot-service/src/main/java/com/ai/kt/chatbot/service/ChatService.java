@@ -68,10 +68,25 @@ public class ChatService {
     @Value("${chatbot.minio.bucket-name}")
     private String bucketName;
 
+    @Value("${text_area_ingesion_wordCount:50000}")
+    private long textAreaWordLimit;
+
+    @Value("${chatbot.default-master-name:Fusion}")
+    private String defaultMasterName;
+
+    @Value("${chatbot.default-system-user:System}")
+    private String defaultSystemUser;
+
+    @Value("${chatbot.ingestion.temp-file-prefix:kt-doc-}")
+    private String tempFilePrefix;
+
+    @Value("${chatbot.ingestion.raw-text-filename:raw_text.txt}")
+    private String rawTextFilename;
+
     @PostConstruct
     public void init() {
         if (masterRepository.findAllByIsDeletedFalse().isEmpty()) {
-            addMaster("Todo App", "System");
+            addMaster(defaultMasterName, defaultSystemUser, null);
         }
     }
 
@@ -90,11 +105,12 @@ public class ChatService {
         return masterRepository.findAllByIsDeletedFalse();
     }
 
-    public void addMaster(String name, String userName) {
+    public void addMaster(String name, String userName, String iconUrl) {
         if (masterRepository.findByMasterName(name).isEmpty()) {
             Master master = Master.builder()
                     .masterName(name)
                     .userName(userName)
+                    .iconUrl(iconUrl)
                     .isActive(true)
                     .isDeleted(false)
                     .build();
@@ -110,7 +126,7 @@ public class ChatService {
         });
     }
 
-    public void updateMaster(String oldName, String newName, Boolean isActive, String userName) {
+    public void updateMaster(String oldName, String newName, Boolean isActive, String userName, String iconUrl) {
         masterRepository.findByMasterName(oldName).ifPresent(master -> {
             if (newName != null && !newName.isBlank()) {
                 master.setMasterName(newName);
@@ -120,6 +136,9 @@ public class ChatService {
             }
             if (userName != null && !userName.isBlank()) {
                 master.setUserName(userName);
+            }
+            if (iconUrl != null) {
+                master.setIconUrl(iconUrl);
             }
             masterRepository.save(master);
             System.out.println("Master [" + oldName + "] updated in DB.");
@@ -210,7 +229,7 @@ public class ChatService {
         String suffix = fileName.contains(".") ? fileName.substring(fileName.lastIndexOf(".")) : ".tmp";
         if (suffix.length() < 3) suffix = ".tmp"; // Ensure valid suffix for createTempFile
         
-        Path tempFile = Files.createTempFile("kt-doc-", suffix);
+        Path tempFile = Files.createTempFile(tempFilePrefix, suffix);
         
         try {
             Files.write(tempFile, fileBytes);
@@ -238,14 +257,14 @@ public class ChatService {
         Document document = Document.from(text);
         document.metadata().add("master_name", masterName);
         document.metadata().add("file_type", "raw_text");
-        validateAndIngest(document, masterName, "raw_text.txt");
+        validateAndIngest(document, masterName, rawTextFilename);
     }
 
     private void validateAndIngest(Document document, String masterName, String fileName) {
         long wordCount = document.text().trim().isEmpty() ? 0 : document.text().split("\\s+").length;
         
-        if (wordCount > 50000) {
-            throw new IllegalArgumentException("Content too large! Max 50,000 words.");
+        if (wordCount > textAreaWordLimit) {
+            throw new IllegalArgumentException("Content too large! Max " + String.format("%,d", textAreaWordLimit) + " words.");
         }
 
         // Use new dynamic Chunking Utility
@@ -258,7 +277,7 @@ public class ChatService {
                 .build();
 
         ingestor.ingest(document);
-        addMaster(masterName, "System");
+        addMaster(masterName, defaultSystemUser, null);
     }
 
     private String getFileType(String fileName) {

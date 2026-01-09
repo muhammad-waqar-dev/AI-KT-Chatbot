@@ -4,7 +4,7 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080/api
 
 export const api = {
   getMasters: () => axios.get(`${API_BASE_URL}/masters`),
-  createMaster: (name, userName) => axios.post(`${API_BASE_URL}/masters`, { name, userName }),
+  createMaster: (name, iconUrl) => axios.post(`${API_BASE_URL}/masters`, { name, iconUrl }),
   updateMaster: (oldName, data) => axios.put(`${API_BASE_URL}/masters/${encodeURIComponent(oldName)}`, data),
   deleteMaster: (name) => axios.delete(`${API_BASE_URL}/masters/${encodeURIComponent(name)}`),
   ingest: (formData) => axios.post(`${API_BASE_URL}/ingest`, formData),

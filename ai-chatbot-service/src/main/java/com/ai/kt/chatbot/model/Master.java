@@ -27,6 +27,9 @@ public class Master {
     @Column(name = "user_name")
     private String userName;
 
+    @Column(name = "icon_url")
+    private String iconUrl;
+
     @CreationTimestamp
     @Column(name = "created_date", updatable = false)
     private LocalDateTime createdDate;
