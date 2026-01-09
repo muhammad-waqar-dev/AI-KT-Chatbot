@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Layout, X, PlusCircle, FileText, MoreVertical, Edit3, Trash2, ChevronDown, ChevronRight, Settings, Users, Database, File } from 'lucide-react';
+import { Layout, X, PlusCircle, FileText, MoreVertical, Edit3, Trash2, ChevronDown, ChevronRight, Settings, Users, Database, File, Scissors } from 'lucide-react';
 import '../styles/Sidebar.css';
 
 const Sidebar = ({ 
@@ -123,6 +123,18 @@ const Sidebar = ({
                         }}
                       >
                         <FileText size={16} /> Update Knowledge
+                      </button>
+                      <button 
+                        className="dropdown-item"
+                        onClick={(e) => { 
+                          e.stopPropagation(); 
+                          setActiveView('fragmentation'); 
+                          setOpenMenuId(null); 
+                          setSelectedMaster(m); 
+                          setSelectedMasterId(master.id);
+                        }}
+                      >
+                        <Scissors size={16} /> Fragmentation
                       </button>
                       <button 
                         className="dropdown-item delete"

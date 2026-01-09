@@ -221,6 +221,87 @@ public class ChatService {
         }
     }
 
+    @Value("${chatbot.qdrant.url}")
+    private String qdrantUrl;
+
+    @Value("${chatbot.qdrant.collection-name}")
+    private String qdrantCollectionName;
+
+    public List<Map<String, Object>> getFragmentationData(Long masterId) {
+        Master masterEntity = masterRepository.findById(masterId)
+                .orElseThrow(() -> new IllegalArgumentException("Master not found with ID: " + masterId));
+        
+        String masterName = masterEntity.getMasterName();
+        System.out.println("Fetching Fragmentation for Master ID: [" + masterId + "] Name: [" + masterName + "]");
+        
+        // 1. Get all DocumentInfo for this master to build a lookup map
+        Map<String, DocumentInfo> docLookup = documentInfoRepository.findAllByMasterId(masterId)
+                .stream()
+                .collect(Collectors.toMap(d -> d.getId().toString(), d -> d));
+
+        // 2. Query Qdrant for points matching this master using direct REST call for vectors
+        try {
+            org.springframework.web.client.RestTemplate restTemplate = new org.springframework.web.client.RestTemplate();
+            String scrollUrl = qdrantUrl + "/collections/" + qdrantCollectionName + "/points/scroll";
+            
+            Map<String, Object> filter = Map.of(
+                "must", List.of(
+                    Map.of("key", "master_name", "match", Map.of("value", masterName))
+                )
+            );
+            
+            Map<String, Object> request = Map.of(
+                "filter", filter,
+                "limit", 100,
+                "with_payload", true,
+                "with_vector", true
+            );
+
+            Map<String, Object> response = restTemplate.postForObject(scrollUrl, request, Map.class);
+            List<Map<String, Object>> points = (List<Map<String, Object>>) ((Map<String, Object>) response.get("result")).get("points");
+
+            return points.stream().map(p -> {
+                Map<String, Object> payload = (Map<String, Object>) p.get("payload");
+                String docId = (String) payload.get("doc_id");
+                DocumentInfo doc = docLookup.get(docId);
+                String text = (String) payload.get("text");
+                List<Double> vector = (List<Double>) p.get("vector");
+
+                Map<String, Object> frag = new HashMap<>();
+                frag.put("id", p.get("id")); // Include the Qdrant point ID
+                frag.put("fileName", doc != null ? doc.getFileName() : "Direct Text");
+                frag.put("uploadedDate", doc != null ? doc.getCreatedAt() : "N/A");
+                frag.put("text", text);
+                frag.put("chunkSize", text != null ? text.length() : 0);
+                frag.put("dimension", vector != null ? vector.size() : 0);
+                frag.put("docType", payload.get("file_type"));
+                frag.put("embeddings", vector);
+                return frag;
+            }).collect(Collectors.toList());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Collections.emptyList();
+        }
+    }
+
+    public void deleteFragments(List<String> pointIds) {
+        try {
+            org.springframework.web.client.RestTemplate restTemplate = new org.springframework.web.client.RestTemplate();
+            String deleteUrl = qdrantUrl + "/collections/" + qdrantCollectionName + "/points/delete";
+            
+            Map<String, Object> request = Map.of(
+                "points", pointIds
+            );
+
+            restTemplate.postForObject(deleteUrl, request, Map.class);
+            System.out.println("Deleted [" + pointIds.size() + "] fragments from Qdrant.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Failed to delete fragments from Qdrant: " + e.getMessage());
+        }
+    }
+
     public TokenStream chat(String message, String masterName) {
         Assistant assistant = createAssistantForMaster(masterName);
         System.out.println("Processing User Message for Master [" + masterName + "]: " + message);

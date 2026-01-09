@@ -51,6 +51,24 @@ public class ChatController {
         return ResponseEntity.ok(result);
     }
 
+    @GetMapping("/masters/{id}/fragmentation")
+    public ResponseEntity<List<Map<String, Object>>> getFragmentation(@PathVariable Long id) {
+        // Return actual chunks and embeddings
+        return ResponseEntity.ok(chatService.getFragmentationData(id));
+    }
+
+    @DeleteMapping("/fragments")
+    public ResponseEntity<Map<String, String>> deleteFragments(@RequestBody List<String> ids) {
+        chatService.deleteFragments(ids);
+        return ResponseEntity.ok(Map.of("message", ids.size() + " fragments deleted successfully"));
+    }
+
+    @DeleteMapping("/fragments/{id}")
+    public ResponseEntity<Map<String, String>> deleteFragment(@PathVariable String id) {
+        chatService.deleteFragments(java.util.List.of(id));
+        return ResponseEntity.ok(Map.of("message", "Fragment deleted successfully"));
+    }
+
     @DeleteMapping("/masters/{masterId}/documents/{docId}")
     public ResponseEntity<Map<String, String>> deleteDocument(@PathVariable Long masterId, @PathVariable Long docId) {
         chatService.deleteDocument(masterId, docId);

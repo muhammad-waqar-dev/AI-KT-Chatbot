@@ -5,6 +5,7 @@ import Header from './components/Header';
 import ChatView from './components/ChatView';
 import TrainingView from './components/TrainingView';
 import DocumentsView from './components/DocumentsView';
+import FragmentationView from './components/FragmentationView';
 import CreateMasterModal from './components/CreateMasterModal';
 import ConfirmationModal from './components/ConfirmationModal';
 import './styles/App.css';
@@ -262,6 +263,12 @@ function App() {
             selectedMasterId={selectedMasterId}
             setActiveView={setActiveView}
             activeView={activeView}
+          />
+        ) : activeView === 'fragmentation' ? (
+          <FragmentationView 
+            selectedMaster={selectedMaster}
+            selectedMasterId={selectedMasterId}
+            setActiveView={setActiveView}
           />
         ) : (
           <TrainingView 

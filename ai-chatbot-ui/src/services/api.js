@@ -10,6 +10,9 @@ export const api = {
   getDocuments: (masterId) => axios.get(`${API_BASE_URL}/masters/${masterId}/documents`),
   deleteDocument: (masterId, docId) => axios.delete(`${API_BASE_URL}/masters/${masterId}/documents/${docId}`),
   downloadDocument: (masterId, docId) => axios.get(`${API_BASE_URL}/masters/${masterId}/documents/${docId}/download`, { responseType: 'blob' }),
+  getFragmentation: (masterId) => axios.get(`${API_BASE_URL}/masters/${masterId}/fragmentation`),
+  deleteFragment: (id) => axios.delete(`${API_BASE_URL}/fragments/${id}`),
+  deleteFragments: (ids) => axios.delete(`${API_BASE_URL}/fragments`, { data: ids }),
   ingest: (formData) => axios.post(`${API_BASE_URL}/ingest`, formData),
   getChatStream: async (input, masterName, onToken, onDone, onError) => {
     try {

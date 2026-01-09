@@ -19,11 +19,13 @@ const Header = ({ isSidebarOpen, setIsSidebarOpen, activeView, selectedMaster, s
             ? selectedMaster 
             : activeView === 'documents' 
               ? `Knowledge Base: ${selectedMaster}`
-              : `Updating: ${selectedMaster}`}
+              : activeView === 'fragmentation'
+                ? `Fragmentation: ${selectedMaster}`
+                : `Updating: ${selectedMaster}`}
         </span>
         <div className="header-badge">Active</div>
       </div>
-      {(activeView === 'update' || activeView === 'documents') && (
+      {(activeView === 'update' || activeView === 'documents' || activeView === 'fragmentation') && (
         <button 
           className="back-to-chat-btn"
           onClick={() => setActiveView('chat')} 
