@@ -32,7 +32,7 @@ const ChatView = ({ messages, messagesEndRef, input, setInput, sendMessage, isLo
                   alignItems: 'center',
                   justifyContent: 'center'
                 }}>
-                  {msg.role === 'user' ? <User size={14} color="#64748b" /> : <Bot size={14} color="rgb(20, 18, 59)" />}
+                {msg.role === 'user' ? <User size={14} color="#64748b" /> : <Bot size={14} color="rgb(20, 18, 59)" />}
                 </div>
                 <span style={{ fontSize: '0.65rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                   {msg.role === 'user' ? 'You' : 'AI Assistant'}

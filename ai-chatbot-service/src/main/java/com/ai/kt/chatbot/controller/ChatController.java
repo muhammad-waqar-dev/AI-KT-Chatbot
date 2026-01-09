@@ -38,8 +38,9 @@ public class ChatController {
             @RequestBody Map<String, Object> request) {
         String newName = (String) request.get("name");
         Boolean isActive = (Boolean) request.get("isActive");
+        String userName = (String) request.get("userName");
         
-        chatService.updateMaster(oldName, newName, isActive);
+        chatService.updateMaster(oldName, newName, isActive, userName);
         return ResponseEntity.ok(Map.of("message", "Master updated successfully"));
     }
 
@@ -70,10 +71,11 @@ public class ChatController {
     @PostMapping("/masters")
     public ResponseEntity<Map<String, String>> createMaster(@RequestBody Map<String, String> request) {
         String name = request.get("name");
+        String userName = request.get("userName");
         if (name == null || name.isBlank()) {
             return ResponseEntity.badRequest().body(Map.of("error", "Master name is required"));
         }
-        chatService.addMaster(name);
+        chatService.addMaster(name, userName != null ? userName : "Anonymous");
         return ResponseEntity.ok(Map.of("message", "Master created successfully"));
     }
 
