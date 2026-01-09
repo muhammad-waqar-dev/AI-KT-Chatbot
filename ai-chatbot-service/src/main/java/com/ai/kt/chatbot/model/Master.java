@@ -24,6 +24,9 @@ public class Master {
     @Column(name = "master_name", nullable = false, unique = true)
     private String masterName;
 
+    @Column(name = "user_name")
+    private String userName;
+
     @CreationTimestamp
     @Column(name = "created_date", updatable = false)
     private LocalDateTime createdDate;
