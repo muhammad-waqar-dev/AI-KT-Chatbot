@@ -22,6 +22,8 @@ node_modules/
 # Local Data & 
 ai-chatbot-service/embeddings.json
 ai-chatbot-service/masters.txt
+ai-chatbot-service/.idea/*
+ai-chatbot-service/.idea/workspace.xml
 
 workspace.xml
 # Object Storage Data

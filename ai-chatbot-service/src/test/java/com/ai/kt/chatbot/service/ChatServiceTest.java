@@ -25,7 +25,7 @@ public class ChatServiceTest {
         // This verifies that the Assistant interface is correctly proxied by LangChain4j
         // and that all dependencies (Ollama, etc.) are wired correctly.
         try {
-            chatService.chat("Hello");
+            chatService.chat("Hello", "Fusion");
             System.out.println("Chat service initialized successfully.");
         } catch (Exception e) {
             // If Ollama is not running, this test might fail, which is a good indicator
