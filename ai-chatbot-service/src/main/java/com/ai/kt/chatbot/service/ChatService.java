@@ -173,6 +173,11 @@ public class ChatService {
         String fileName = file.getOriginalFilename();
         if (fileName == null) return;
 
+        byte[] fileBytes = file.getBytes(); // Read once
+        if (fileBytes.length == 0) {
+            throw new IllegalArgumentException("File is empty: " + fileName);
+        }
+
         Master master = masterRepository.findByMasterName(masterName)
                 .orElseThrow(() -> new IllegalArgumentException("Master not found: " + masterName));
 
@@ -180,15 +185,15 @@ public class ChatService {
         String sanitizedMasterName = masterName.replaceAll("[^a-zA-Z0-9-_]", "_").toLowerCase();
         String timestamp = java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss").format(java.time.LocalDateTime.now());
         
-        // Revised structure: bucket-name / master_name / filename-timestamp.pdf
         String baseName = fileName.contains(".") ? fileName.substring(0, fileName.lastIndexOf(".")) : fileName;
         String extension = fileName.contains(".") ? fileName.substring(fileName.lastIndexOf(".")) : "";
         String s3Key = sanitizedMasterName + "/" + baseName + "-" + timestamp + extension;
         
+        System.out.println("Uploading to MinIO: " + s3Key);
         s3Client.putObject(PutObjectRequest.builder()
                 .bucket(bucketName)
                 .key(s3Key)
-                .build(), RequestBody.fromBytes(file.getBytes()));
+                .build(), RequestBody.fromBytes(fileBytes));
         
         String uploadedUrl = String.format("/%s/%s", bucketName, s3Key);
 
@@ -202,19 +207,30 @@ public class ChatService {
         documentInfoRepository.save(docInfo);
 
         // 3. Ingest to Qdrant Cloud
-        Path tempFile = Files.createTempFile("kt-doc-", fileName);
-        file.transferTo(tempFile);
-        DocumentParser parser = getParser(fileName);
-
+        String suffix = fileName.contains(".") ? fileName.substring(fileName.lastIndexOf(".")) : ".tmp";
+        if (suffix.length() < 3) suffix = ".tmp"; // Ensure valid suffix for createTempFile
+        
+        Path tempFile = Files.createTempFile("kt-doc-", suffix);
+        
         try {
+            Files.write(tempFile, fileBytes);
+            System.out.println("Processing file: " + fileName + " (Path: " + tempFile + ", Size: " + fileBytes.length + " bytes)");
+            
+            DocumentParser parser = getParser(fileName);
             Document document = FileSystemDocumentLoader.loadDocument(tempFile, parser);
+            
             document.metadata().add("master_name", masterName);
             document.metadata().add("doc_id", docInfo.getId().toString());
             document.metadata().add("file_type", docInfo.getDocType());
 
             validateAndIngest(document, masterName, fileName);
+            System.out.println("Successfully ingested: " + fileName);
+        } catch (Exception e) {
+            System.err.println("Error during ingestion of " + fileName + ": " + e.getMessage());
+            e.printStackTrace();
+            throw e;
         } finally {
-            Files.delete(tempFile);
+            Files.deleteIfExists(tempFile);
         }
     }
 

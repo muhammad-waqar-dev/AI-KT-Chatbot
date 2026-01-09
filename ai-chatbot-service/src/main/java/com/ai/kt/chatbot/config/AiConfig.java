@@ -5,8 +5,8 @@ import dev.langchain4j.memory.ChatMemory;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.model.chat.StreamingChatLanguageModel;
 import dev.langchain4j.model.embedding.EmbeddingModel;
+import dev.langchain4j.model.embedding.onnx.allminilml6v2q.AllMiniLmL6V2QuantizedEmbeddingModel;
 import dev.langchain4j.model.ollama.OllamaStreamingChatModel;
-import dev.langchain4j.model.ollama.OllamaEmbeddingModel;
 import dev.langchain4j.store.embedding.EmbeddingStore;
 import dev.langchain4j.store.embedding.qdrant.QdrantEmbeddingStore;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,9 +28,6 @@ public class AiConfig {
 
     @Value("${langchain4j.ollama.chat-model.model-name}")
     private String modelName;
-
-    @Value("${langchain4j.ollama.embedding-model.model-name}")
-    private String embeddingModelName;
 
     @Value("${chatbot.qdrant.url}")
     private String qdrantUrl;
@@ -58,27 +55,35 @@ public class AiConfig {
         return OllamaStreamingChatModel.builder()
                 .baseUrl(baseUrl)
                 .modelName(modelName)
-                .timeout(Duration.ofMinutes(5))
+                .timeout(Duration.ofMinutes(10))
                 .build();
     }
 
     @Bean
     public EmbeddingModel embeddingModel() {
-        return OllamaEmbeddingModel.builder()
-                .baseUrl(baseUrl)
-                .modelName(embeddingModelName)
-                .timeout(Duration.ofMinutes(5))
-                .build();
+        // Run embeddings locally inside the JVM (Fast, no network calls, 384 dimensions)
+        return new AllMiniLmL6V2QuantizedEmbeddingModel();
     }
 
     @Bean
     public EmbeddingStore<TextSegment> embeddingStore() {
+        // Clean the URL to get only the hostname
+        String host = qdrantUrl.replace("https://", "").replace("http://", "");
+        if (host.contains(":")) {
+            host = host.split(":")[0];
+        }
+        if (host.endsWith("/")) {
+            host = host.substring(0, host.length() - 1);
+        }
+
+        System.out.println("Connecting to Qdrant Local Host: " + host);
+
         return QdrantEmbeddingStore.builder()
-                .host(qdrantUrl.replace("https://", "").split(":")[0])
+                .host(host)
                 .port(6334)
                 .apiKey(qdrantApiKey)
                 .collectionName(qdrantCollectionName)
-                .useTls(true)
+                .useTls(false) // Required for local Qdrant
                 .build();
     }
 

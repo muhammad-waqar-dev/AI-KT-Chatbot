@@ -37,6 +37,18 @@
             <artifactId>langchain4j-qdrant</artifactId>
             <version>${langchain4j.version}</version>
         </dependency>
+        <!-- Local Embedding Model (Bypasses Ollama for faster search) -->
+        <dependency>
+            <groupId>dev.langchain4j</groupId>
+            <artifactId>langchain4j-embeddings-all-minilm-l6-v2-q</artifactId>
+            <version>${langchain4j.version}</version>
+        </dependency>
+        <!-- Specialized SSL for gRPC (Fixes ALPN negotiation issues with Zscaler) -->
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-tcnative-boringssl-static</artifactId>
+            <version>2.0.61.Final</version>
+        </dependency>
         <!-- AWS S3 for Cloud Storage -->
         <dependency>
             <groupId>software.amazon.awssdk</groupId>
@@ -102,5 +114,3 @@
         </plugins>
     </build>
 </project>
-
-
